@@ -47,6 +47,4 @@ trait ClientTestBase[T <: algebra.Endpoints]
       args: Req
   ): Future[Resp]
 
-  def encodeUrl[A](url: client.Url[A])(a: A): String
-
 }

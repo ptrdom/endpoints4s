@@ -27,7 +27,8 @@ class Http4sClientEndpointsJsonSchemaTest
     extends client.EndpointsTestSuite[TestJsonSchemaClient[IO]]
     with client.BasicAuthTestSuite[TestJsonSchemaClient[IO]]
     with client.JsonFromCodecTestSuite[TestJsonSchemaClient[IO]]
-    with client.SumTypedEntitiesTestSuite[TestJsonSchemaClient[IO]] {
+    with client.SumTypedEntitiesTestSuite[TestJsonSchemaClient[IO]]
+    with client.EncodeTestSuite[TestJsonSchemaClient[IO]] {
 
   val (ahc, shutdown) =
     AsyncHttpClient.allocate[IO]().unsafeRunSync()

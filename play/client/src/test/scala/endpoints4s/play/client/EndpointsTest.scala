@@ -26,7 +26,8 @@ class EndpointsTest
     with client.BasicAuthTestSuite[TestClient]
     with client.JsonFromCodecTestSuite[TestClient]
     with client.SumTypedEntitiesTestSuite[TestClient]
-    with client.TextEntitiesTestSuite[TestClient] {
+    with client.TextEntitiesTestSuite[TestClient]
+    with client.EncodeTestSuite[TestClient] {
 
   import ExecutionContext.Implicits.global
 
