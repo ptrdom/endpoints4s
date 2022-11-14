@@ -449,6 +449,53 @@ object StubServer extends App {
             matcherExhausted(r)
           }
         }
+    case r @ HttpRequest(
+          POST,
+          uri,
+          _,
+          requestEntity,
+          _
+        ) if uri.toRelative == Uri("/chunked-full-duplex") =>
+      //TODO framing might not be required after all
+      HttpResponse(entity =
+        HttpEntity.Chunked.fromData(
+          ContentTypes.`application/json`,
+          requestEntity.dataBytes
+            .via(
+              Framing.delimiter(
+                ByteString("\n"),
+                maximumFrameLength = Int.MaxValue,
+                allowTruncation = true
+              )
+            )
+            .statefulMapConcat { () =>
+              var expectedElements = Seq(
+                ByteString("{\"value\":1}"),
+                ByteString("{\"value\":2}"),
+                ByteString("{\"value\":3}")
+              )
+
+              { element =>
+                expectedElements.headOption
+                  .fold(
+                    throw new IllegalArgumentException(
+                      s"Did not expect any more elements, but received [$element]"
+                    )
+                  )(expectedElement =>
+                    if (element != expectedElement) {
+                      throw new IllegalArgumentException(
+                        s"Invalid element [$element] received, expected [$expectedElement]"
+                      )
+                    } else {
+                      expectedElements = expectedElements.drop(1)
+                      Seq(element)
+                    }
+                  )
+              }
+            }
+            .intersperse(ByteString("\n"))
+        )
+      )
     case HttpRequest(
           GET,
           uri @ Uri.Path("/mapped-left"),
